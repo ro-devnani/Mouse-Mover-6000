@@ -1,0 +1,41 @@
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Config:
+    # --- display ---
+    screen_region: dict = field(
+        default_factory=lambda: {"top": 0, "left": 0, "width": 1920, "height": 1080}
+    )
+    screen_center: tuple[int, int] = (960, 540)
+
+    # --- detection (neon blue in HSV; OpenCV H is 0-179) ---
+    hsv_lower: tuple[int, int, int] = (90, 120, 120)
+    hsv_upper: tuple[int, int, int] = (120, 255, 255)
+    min_area_px: float = 80.0
+
+    # --- control ---
+    gain: float = 0.03            # mm of plotter travel per px of error
+    kp: float = 1.0               # multiplies gain
+    ki: float = 0.0               # 0 = pure PD
+    kd: float = 0.2
+    max_move_mm: float = 5.0      # clamp per frame -> "glide"
+    hitbox_tol_px: float = 6.0    # extra slack added to ball radius
+
+    # --- plotter / serial ---
+    port: str = "COM3"
+    baud: int = 115200
+    press_cmd: str = "M3 S1000"
+    release_cmd: str = "M5"
+    click_dwell_s: float = 0.04
+
+    # --- soft limits (mm), bed center is origin reference ---
+    soft_limit_mm: float = 100.0  # +/- travel from start in X and Y
+    bed_center_mm: tuple[float, float] = (0.0, 0.0)
+
+    # --- drift corrector ---
+    drift_idle_frames: int = 8
+    drift_step_mm: float = 1.0
+
+    # --- safety ---
+    kill_key: str = "q"
