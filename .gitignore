@@ -1,8 +1,21 @@
+# Python
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.superpowers/
 *.egg-info/
+.pytest_cache/
+
+# Virtual envs
 .venv/
 venv/
+env/
+
+# Tooling / scratch
+.superpowers/
+.claude/
+
+# Debug tool output
 tune_snapshot.png
+
+# OS
+Thumbs.db
+.DS_Store
