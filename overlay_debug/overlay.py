@@ -1,11 +1,8 @@
-"""THROWAWAY debug overlay — delete the overlay_debug/ folder before deployment.
+"""THROWAWAY debug overlay. Delete folder before deployment.
 
-Draws the planned cursor path (crosshair -> closest target -> next target)
-over a live screen capture. Read-only: imports from aimplotter but never
-modifies it, sends nothing to the plotter, and does not move the cursor.
-
-Run from the mm6000/ project root:  python overlay_debug/overlay.py
-Press 'q' (window focused) to quit.
+Draws crosshair to closest to next target path.
+Read-only. Sends nothing, moves nothing.
+Run: python overlay_debug/overlay.py (press q to quit).
 """
 import math
 import os
@@ -57,8 +54,7 @@ def _draw(frame, balls, center):
 
 
 def main():
-    # Imported here (not at module load) so the drawing helpers above stay
-    # importable even before aimplotter.capture/detector are implemented.
+    # Lazy import keeps helpers importable
     from aimplotter.capture import ScreenCapture
     from aimplotter.config import Config
     from aimplotter.detector import detect_blue

@@ -1,4 +1,4 @@
-# overlay_debug — THROWAWAY DEV TOOL
+# overlay_debug (THROWAWAY DEV TOOL)
 
 > ⚠️ **Delete this entire folder before final deployment.** It is a debugging
 > visualization only. It imports from `aimplotter/` (read-only) and modifies
@@ -16,7 +16,7 @@ on top:
   after that).
 - Each ball circled; closest/next labeled.
 
-This is purely visual — it sends nothing to the plotter and does not move the
+This is purely visual. It sends nothing to the plotter and does not move the
 cursor.
 
 ## Run
