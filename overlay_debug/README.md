@@ -6,18 +6,19 @@
 
 ## What it shows
 
-A live OpenCV window of the captured screen with the planned cursor path drawn
-on top:
+A transparent, always-on-top, click-through window drawn directly over the
+game:
 
-- **Crosshair** marked at screen center (where the in-game cursor sits).
-- A line from the **crosshair → closest target** (the ball the cursor moves to
-  first).
-- A line from the **closest target → next target** (where the cursor goes
-  after that).
-- Each ball circled; closest/next labeled.
+- A **green box** over every detected ball.
+- A **yellow line** from the cursor to the nearest ball, with that ball boxed
+  in yellow.
 
-This is purely visual. It sends nothing to the plotter and does not move the
-cursor.
+It is click-through, so it never steals mouse input from the game. It is purely
+visual and sends nothing to the plotter.
+
+**Aim Labs must run in windowed or borderless mode.** Exclusive fullscreen
+cannot be drawn over by any external overlay. Windows only (uses tkinter +
+ctypes).
 
 ## Run
 
@@ -27,7 +28,7 @@ From the `mm6000/` project root:
 python overlay_debug/overlay.py
 ```
 
-Press `q` (with the window focused) to quit.
+Press `q` to quit (works anywhere, via a global key listener).
 
 ## HSV tuner (test + calibrate detection)
 
