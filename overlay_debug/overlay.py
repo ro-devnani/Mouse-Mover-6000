@@ -12,6 +12,7 @@ Run: python overlay_debug/overlay.py (press q to quit).
 import ctypes
 import os
 import sys
+import time
 import tkinter as tk
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -53,6 +54,9 @@ def main():
     pointer = mouse.Controller()
     tracker = Tracker(config.track_match_dist_px, config.track_max_misses)
     locked = {"id": None}
+    backend = {"DxCamCapture": "dxcam", "ScreenCapture": "mss"}.get(
+        type(cap).__name__, type(cap).__name__)
+    hud = {"t": time.perf_counter(), "fps": 0.0}
 
     root = tk.Tk()
     root.overrideredirect(True)
@@ -117,6 +121,19 @@ def main():
             canvas.create_text(x1, y1 - 4, text=f"LOCK {sel.id}",
                                fill="#ffff00", anchor="sw",
                                font=("Consolas", 11, "bold"))
+
+        # HUD corner readout
+        now = time.perf_counter()
+        dt = now - hud["t"]
+        hud["t"] = now
+        if dt > 0:
+            hud["fps"] = 0.9 * hud["fps"] + 0.1 * (1.0 / dt)
+        seen = sum(1 for t in tracks if t.misses == 0)
+        lock_txt = locked["id"] if locked["id"] is not None else "-"
+        canvas.create_text(
+            12, 12, anchor="nw", fill="#00ffff", font=("Consolas", 12),
+            text=(f"fps {hud['fps']:4.0f}  cap {backend}\n"
+                  f"targets {seen}  lock {lock_txt}"))
 
         root.after(15, tick)
 
