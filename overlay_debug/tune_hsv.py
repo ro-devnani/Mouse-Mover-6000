@@ -77,8 +77,8 @@ def main():
         if static is None:
             raise SystemExit(f"could not read image: {args.image}")
     else:
-        from aimplotter.capture import ScreenCapture
-        cap = ScreenCapture(config.screen_region)
+        from aimplotter.capture import make_capture
+        cap = make_capture(config)
 
     frozen = None
     try:

@@ -40,7 +40,7 @@ def glide_step(cursor_xy, target_xy, factor, max_step):
 def main():
     from pynput import mouse, keyboard
     from aimplotter.config import Config
-    from aimplotter.capture import ScreenCapture
+    from aimplotter.capture import make_capture
     from aimplotter.detector import detect_blue
     from aimplotter.tracker import Tracker
 
@@ -51,7 +51,7 @@ def main():
     off_x = region.get("left", 0)
     off_y = region.get("top", 0)
 
-    cap = ScreenCapture(region)
+    cap = make_capture(config)
     pointer = mouse.Controller()
 
     stop = {"q": False}

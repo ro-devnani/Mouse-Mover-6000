@@ -104,8 +104,8 @@ def main(argv=None) -> None:
     listener.start()
 
     # capture
-    from aimplotter.capture import ScreenCapture
-    cap = ScreenCapture(config.screen_region)
+    from aimplotter.capture import make_capture
+    cap = make_capture(config)
 
     # plotter
     if args.no_serial:

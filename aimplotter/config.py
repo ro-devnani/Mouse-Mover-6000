@@ -8,6 +8,7 @@ class Config:
         default_factory=lambda: {"top": 0, "left": 0, "width": 1920, "height": 1080}
     )
     screen_center: tuple[int, int] = (960, 540)
+    capture_backend: str = "auto"   # auto | dxcam | mss
 
     # --- detection (neon blue in HSV; OpenCV H is 0-179) ---
     hsv_lower: tuple[int, int, int] = (90, 120, 120)
