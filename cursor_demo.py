@@ -15,8 +15,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimplotter.targeting import nearest_to_center
 from aimplotter.controller import on_target
+from aimplotter.tracker import select_locked
 
 # Tuning for the glide
 GLIDE_FACTOR = 0.35       # fraction of error per frame
@@ -42,8 +42,11 @@ def main():
     from aimplotter.config import Config
     from aimplotter.capture import ScreenCapture
     from aimplotter.detector import detect_blue
+    from aimplotter.tracker import Tracker
 
     config = Config()
+    tracker = Tracker(config.track_match_dist_px, config.track_max_misses)
+    locked_id = None
     region = config.screen_region
     off_x = region.get("left", 0)
     off_y = region.get("top", 0)
@@ -72,8 +75,11 @@ def main():
                                 config.min_area_px)
             cur = pointer.position
             local = (cur[0] - off_x, cur[1] - off_y)
-            ball = nearest_to_center(balls, local)
-            if ball is not None:
+            tracks = tracker.update(balls)
+            sel = select_locked(tracks, local, locked_id)
+            locked_id = sel.id if sel else None
+            if sel is not None:
+                ball = sel.ball
                 target = (off_x + ball.cx, off_y + ball.cy)
                 err = (target[0] - cur[0], target[1] - cur[1])
                 if on_target(err, ball.r, config.hitbox_tol_px):
@@ -81,6 +87,7 @@ def main():
                     if now - last_click >= CLICK_COOLDOWN_S:
                         pointer.click(mouse.Button.left)
                         last_click = now
+                        locked_id = None  # release after hit
                 else:
                     pointer.position = glide_step(cur, target, GLIDE_FACTOR,
                                                   MAX_STEP_PX)

@@ -6,19 +6,28 @@ from aimplotter.detector import detect_blue
 from aimplotter.targeting import nearest_to_center, error_vector
 from aimplotter.controller import PDController, on_target
 from aimplotter.drift import DriftCorrector
+from aimplotter.tracker import select_locked
 
 
 def run_loop(frame_source, plotter, controller, drift, config,
-             should_stop) -> list[str]:
+             should_stop, tracker=None) -> list[str]:
     """Drive one detect->aim->click loop. Returns action log for testing."""
     actions: list[str] = []
+    locked_id = None
     while not should_stop():
         frame = frame_source()
         if frame is None:
             break
         balls = detect_blue(frame, config.hsv_lower, config.hsv_upper,
                             config.min_area_px)
-        target = nearest_to_center(balls, config.screen_center)
+        if tracker is not None:
+            # Lock one target across frames
+            tracks = tracker.update(balls)
+            sel = select_locked(tracks, config.screen_center, locked_id)
+            target = sel.ball if sel else None
+            locked_id = sel.id if sel else None
+        else:
+            target = nearest_to_center(balls, config.screen_center)
         if target is None:
             if drift.tick(plotter):
                 actions.append("drift")
@@ -31,6 +40,7 @@ def run_loop(frame_source, plotter, controller, drift, config,
         if on_target(err, target.r, config.hitbox_tol_px):
             plotter.click()
             controller.reset()
+            locked_id = None  # release after hit
             actions.append("click")
         else:
             dx, dy = controller.step(err)
@@ -76,6 +86,8 @@ def main(argv=None) -> None:
                              config.max_move_mm)
     drift = DriftCorrector(config.bed_center_mm, config.drift_idle_frames,
                           config.drift_step_mm)
+    from aimplotter.tracker import Tracker
+    tracker = Tracker(config.track_match_dist_px, config.track_max_misses)
 
     # kill switch
     stop_flag = {"stop": False}
@@ -110,7 +122,7 @@ def main(argv=None) -> None:
 
     try:
         run_loop(cap.grab, plotter, controller, drift, config,
-                 should_stop=lambda: stop_flag["stop"])
+                 should_stop=lambda: stop_flag["stop"], tracker=tracker)
     finally:
         try:
             plotter.safe_stop()

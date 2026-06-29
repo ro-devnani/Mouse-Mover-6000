@@ -37,5 +37,9 @@ class Config:
     drift_idle_frames: int = 8
     drift_step_mm: float = 1.0
 
+    # --- tracking (stable target IDs) ---
+    track_match_dist_px: float = 80.0   # max move to keep same ID
+    track_max_misses: int = 5           # lost-frame grace
+
     # --- safety ---
     kill_key: str = "q"
