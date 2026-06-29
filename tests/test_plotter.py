@@ -50,3 +50,10 @@ def test_feed_hold_sends_bang():
     p = _plotter()
     p.feed_hold()
     assert p.serial.written[-1] == "!"
+
+
+def test_safe_stop_releases_then_halts():
+    p = _plotter()
+    p.safe_stop()
+    assert any("M5" in w for w in p.serial.written)
+    assert p.serial.written[-1] == "!"

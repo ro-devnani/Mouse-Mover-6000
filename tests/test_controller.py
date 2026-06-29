@@ -16,14 +16,14 @@ def test_move_is_clamped():
 
 
 def test_derivative_damps_on_growing_error():
-    c = PDController(gain=0.0, kp=0.0, ki=0.0, kd=0.5, max_move_mm=100.0)
+    c = PDController(gain=1.0, kp=0.0, ki=0.0, kd=0.5, max_move_mm=100.0)
     c.step((10.0, 0.0))            # prev err set
     mx, _ = c.step((30.0, 0.0))    # delta = 20 -> 0.5*20 = 10
     assert math.isclose(mx, 10.0, abs_tol=1e-6)
 
 
 def test_reset_clears_state():
-    c = PDController(gain=0.0, kp=0.0, ki=0.0, kd=0.5, max_move_mm=100.0)
+    c = PDController(gain=1.0, kp=0.0, ki=0.0, kd=0.5, max_move_mm=100.0)
     c.step((10.0, 0.0))
     c.reset()
     mx, _ = c.step((10.0, 0.0))    # treated as first sample, delta=0

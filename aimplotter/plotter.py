@@ -20,9 +20,17 @@ class GRBLPlotter:
         return (self._x, self._y)
 
     def _send(self, line: str) -> None:
-        self.serial.write(line.encode() if not line.endswith("\n")
-                          else line.encode())
-        self.serial.readline()  # wait for ok
+        """Send command, wait for ok."""
+        self.serial.write(line.encode())
+        for _ in range(100):
+            resp = self.serial.readline()
+            if not resp:
+                break
+            text = resp.decode(errors="replace").strip().lower()
+            if text.startswith("ok"):
+                break
+            if text.startswith("error"):
+                raise RuntimeError(resp.decode(errors="replace").strip())
 
     def _clamp(self, target, axis_center):
         lo = axis_center - self.soft_limit_mm
@@ -48,6 +56,11 @@ class GRBLPlotter:
         self._send(self.press_cmd + "\n")
         self._sleep(self.click_dwell_s)
         self._send(self.release_cmd + "\n")
+
+    def safe_stop(self) -> None:
+        """Release servo then halt."""
+        self._send(self.release_cmd + "\n")
+        self.serial.write(b"!")
 
     def feed_hold(self) -> None:
         self.serial.write(b"!")  # realtime, no response

@@ -34,7 +34,9 @@ def run_loop(frame_source, plotter, controller, drift, config,
             actions.append("click")
         else:
             dx, dy = controller.step(err)
-            plotter.jog(dx, dy)
+            ok = plotter.jog(dx, dy)
+            if not ok:
+                print("WARNING: soft limit reached")
             actions.append("jog")
     return actions
 
@@ -55,6 +57,9 @@ class _PrintPlotter:
 
     def click(self):
         print("[dry-run] CLICK")
+
+    def safe_stop(self):
+        print("[dry-run] SAFE STOP")
 
     def feed_hold(self):
         print("[dry-run] FEED HOLD")
@@ -98,6 +103,7 @@ def main(argv=None) -> None:
         from aimplotter.plotter import GRBLPlotter
         ser = serial.Serial(config.port, config.baud, timeout=2)
         time.sleep(2)
+        ser.reset_input_buffer()
         plotter = GRBLPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
                              config.press_cmd, config.release_cmd,
                              config.click_dwell_s)
@@ -107,7 +113,7 @@ def main(argv=None) -> None:
                  should_stop=lambda: stop_flag["stop"])
     finally:
         try:
-            plotter.feed_hold()
+            plotter.safe_stop()
         except Exception:
             pass
         cap.close()

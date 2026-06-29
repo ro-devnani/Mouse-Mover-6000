@@ -32,6 +32,7 @@ def measure_gain(capture, plotter, config, move_mm=5.0) -> float:
     gain = move_mm / px
     print(f"Moved {move_mm} mm -> {px:.1f} px shift. "
           f"Suggested config.gain = {gain:.5f}")
+    plotter.jog(-move_mm, 0.0)  # return carriage to start
     return gain
 
 

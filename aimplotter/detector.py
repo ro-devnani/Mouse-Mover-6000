@@ -6,7 +6,7 @@ from aimplotter.models import Ball
 def detect_blue(frame, hsv_lower, hsv_upper, min_area) -> list[Ball]:
     """Find neon-blue blobs in a BGR frame, return Balls sorted largest-first."""
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, np.array(hsv_lower), np.array(hsv_upper))
+    mask = cv2.inRange(hsv, np.array(hsv_lower, dtype=np.uint8), np.array(hsv_upper, dtype=np.uint8))
     kernel = np.ones((3, 3), np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)

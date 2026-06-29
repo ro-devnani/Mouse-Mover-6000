@@ -26,7 +26,7 @@ class PDController:
             e = err_px[i]
             d = 0.0 if self._prev is None else (e - self._prev[i])
             self._integral[i] += e
-            out[i] = self.gain * self.kp * e + self.kd * d + self.ki * self._integral[i]
+            out[i] = self.gain * (self.kp * e + self.kd * d + self.ki * self._integral[i])
         self._prev = (err_px[0], err_px[1])
 
         mag = math.hypot(out[0], out[1])
