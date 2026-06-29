@@ -9,9 +9,15 @@
 A transparent, always-on-top, click-through window drawn directly over the
 game:
 
-- A **green box** over every detected ball.
-- A **yellow line** from the cursor to the nearest ball, with that ball boxed
-  in yellow.
+- A **green box** over every detected ball, labeled with its **track ID**.
+- Coasting tracks (briefly lost, within the grace period) show **gray** and
+  `(lost)`.
+- A **yellow line** from the cursor to the locked ball, boxed in yellow and
+  labeled `LOCK <id>`.
+
+The track IDs let you watch the lock-on behavior: the locked ID stays put while
+that ball is visible, and only moves to another when the locked one is hit or
+disappears.
 
 It is click-through, so it never steals mouse input from the game. It is purely
 visual and sends nothing to the plotter.

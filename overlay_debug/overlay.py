@@ -10,7 +10,6 @@ Exclusive fullscreen cannot be drawn over.
 Run: python overlay_debug/overlay.py (press q to quit).
 """
 import ctypes
-import math
 import os
 import sys
 import tkinter as tk
@@ -18,14 +17,6 @@ import tkinter as tk
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 CHROMA = "#010101"   # this color renders transparent
-
-
-def _ordered_by_distance(balls, point):
-    """Return balls sorted nearest-first to point."""
-    return sorted(
-        balls,
-        key=lambda b: math.hypot(b.cx - point[0], b.cy - point[1]),
-    )
 
 
 def box_coords(ball, off_x=0, off_y=0):
@@ -52,6 +43,7 @@ def main():
     from aimplotter.config import Config
     from aimplotter.capture import make_capture
     from aimplotter.detector import detect_blue
+    from aimplotter.tracker import Tracker, select_locked
 
     config = Config()
     region = config.screen_region
@@ -59,6 +51,8 @@ def main():
     off_y = region.get("top", 0)
     cap = make_capture(config)
     pointer = mouse.Controller()
+    tracker = Tracker(config.track_match_dist_px, config.track_max_misses)
+    locked = {"id": None}
 
     root = tk.Tk()
     root.overrideredirect(True)
@@ -97,21 +91,32 @@ def main():
                                 config.min_area_px)
         canvas.delete("all")
 
-        # Box every detected target
-        for b in balls:
-            canvas.create_rectangle(*box_coords(b, off_x, off_y),
-                                    outline="#00ff00", width=2)
-
-        # Line from cursor to nearest target
         cur = pointer.position
         local = (cur[0] - off_x, cur[1] - off_y)
-        ordered = _ordered_by_distance(balls, local)
-        if ordered:
-            n = ordered[0]
+        tracks = tracker.update(balls)
+        sel = select_locked(tracks, local, locked["id"])
+        locked["id"] = sel.id if sel else None
+
+        # Box and label every track
+        for t in tracks:
+            x1, y1, x2, y2 = box_coords(t.ball, off_x, off_y)
+            seen = t.misses == 0
+            color = "#00ff00" if seen else "#888888"  # gray when coasting
+            canvas.create_rectangle(x1, y1, x2, y2, outline=color, width=2)
+            label = f"id {t.id}" + ("" if seen else " (lost)")
+            canvas.create_text(x1, y1 - 4, text=label, fill=color,
+                               anchor="sw", font=("Consolas", 11))
+
+        # Highlight the locked target, line from cursor
+        if sel is not None:
+            n = sel.ball
             canvas.create_line(cur[0], cur[1], off_x + n.cx, off_y + n.cy,
                                fill="#ffff00", width=2)
-            canvas.create_rectangle(*box_coords(n, off_x, off_y),
-                                    outline="#ffff00", width=3)
+            x1, y1, x2, y2 = box_coords(n, off_x, off_y)
+            canvas.create_rectangle(x1, y1, x2, y2, outline="#ffff00", width=3)
+            canvas.create_text(x1, y1 - 4, text=f"LOCK {sel.id}",
+                               fill="#ffff00", anchor="sw",
+                               font=("Consolas", 11, "bold"))
 
         root.after(15, tick)
 
