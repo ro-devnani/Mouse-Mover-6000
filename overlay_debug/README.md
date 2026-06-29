@@ -10,10 +10,9 @@ A transparent, always-on-top, click-through window drawn directly over the
 game:
 
 - A **green box** over every detected ball, labeled with its **track ID**.
-- Coasting tracks (briefly lost, within the grace period) show **gray** and
-  `(lost)`.
 - A **yellow line** from the cursor to the locked ball, boxed in yellow and
-  labeled `LOCK <id>`.
+  labeled `LOCK <id>`. The yellow box marks the target the aim system would
+  move to and click.
 
 The track IDs let you watch the lock-on behavior: the locked ID stays put while
 that ball is visible, and only moves to another when the locked one is hit or

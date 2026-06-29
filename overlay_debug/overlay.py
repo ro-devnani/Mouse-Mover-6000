@@ -101,14 +101,13 @@ def main():
         sel = select_locked(tracks, local, locked["id"])
         locked["id"] = sel.id if sel else None
 
-        # Box and label every track
+        # Box and label tracks seen this frame
         for t in tracks:
+            if t.misses != 0:
+                continue
             x1, y1, x2, y2 = box_coords(t.ball, off_x, off_y)
-            seen = t.misses == 0
-            color = "#00ff00" if seen else "#888888"  # gray when coasting
-            canvas.create_rectangle(x1, y1, x2, y2, outline=color, width=2)
-            label = f"id {t.id}" + ("" if seen else " (lost)")
-            canvas.create_text(x1, y1 - 4, text=label, fill=color,
+            canvas.create_rectangle(x1, y1, x2, y2, outline="#00ff00", width=2)
+            canvas.create_text(x1, y1 - 4, text=f"id {t.id}", fill="#00ff00",
                                anchor="sw", font=("Consolas", 11))
 
         # Highlight the locked target, line from cursor
