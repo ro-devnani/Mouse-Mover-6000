@@ -28,3 +28,20 @@ python overlay_debug/overlay.py
 ```
 
 Press `q` (with the window focused) to quit.
+
+## HSV tuner (test + calibrate detection)
+
+Interactive trackbars to dial in `hsv_lower` / `hsv_upper` / `min_area_px`
+for your monitor and Aim Labs blue. Shows detections and the binary mask
+side by side.
+
+```bash
+python overlay_debug/tune_hsv.py            # live screen
+python overlay_debug/tune_hsv.py --image shot.png   # static image
+```
+
+Keys: `f` freeze/unfreeze, `s` save snapshot + print config values, `q` quit.
+
+Workflow: open Aim Labs, drag sliders until only the balls show white in the
+mask (and each gets a green circle, with `balls: N` matching what you see),
+press `s`, paste the printed three lines into `aimplotter/config.py`.
