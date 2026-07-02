@@ -1,7 +1,5 @@
 # Closed-Loop Optical Aim Plotter Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Detect neon-blue balls on a 1080p fullscreen Aim Labs feed and drive a GRBL XY plotter (carrying a physical mouse) via a closed-loop PD visual servo so the screen-center crosshair lands on the nearest ball and clicks.
 
 **Architecture:** A per-frame loop: capture screen → HSV-detect balls → pick nearest to center → PD controller turns pixel error into a clamped relative mm jog → GRBL serial driver moves the plotter → repeat until the crosshair is inside the ball's hitbox → servo click. A drift corrector reclaims plotter travel during no-target frames. Pure logic modules (detector, targeting, controller, drift) are hardware-free and unit-tested; the plotter driver is tested against a fake serial port.
