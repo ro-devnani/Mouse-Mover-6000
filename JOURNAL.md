@@ -83,6 +83,7 @@ To Do List:
 -   Add a mount for the Arduino Uno
 -   Create the wiring diagram
 -   ~~Code~~
+<img width="1920" height="1079" alt="mm6 detection code" src="https://github.com/user-attachments/assets/3f3f861c-14b2-4f7d-ba7d-5f0cf006244a" />
 
 # _Finish CAD_
 **Hours Spent: 5.5**
@@ -107,6 +108,7 @@ To Do List:
 -   ~~Add a mount for the Arduino Uno~~
 -   Create the wiring diagram
 -   (New) Create Journal and readme
+<img width="1119" height="665" alt="mm6 image 1" src="https://github.com/user-attachments/assets/dab3b46b-e59f-4a26-8aad-63ea5061d8bc" />
 
 # _Final Touches_
 **Hours Spent: 1.25**
