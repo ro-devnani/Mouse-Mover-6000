@@ -119,6 +119,7 @@ With the CAD done, I just began to prep and create my repo before I submit.
 The electrical diagram was very simple, and I made it in MS paint because the different softwares I tried were very annoying. Because there are not too many components though, I believe it turned out alright.
 
 The journal and readme files took the longest because they were hand-typed (no ai). Lookout conked on me 2 times so I gave up on it, but I could still copy around half the work from the Stardance project. 
+<img width="1012" height="613" alt="mm6000 wiring diagram" src="https://github.com/user-attachments/assets/986f3c5c-924d-46c7-b0ce-16caa650d7a9" />
 
 # _Overall_
 **Time Spent: 15.5 hours** 
