@@ -2,6 +2,12 @@
 An XY plotter based system that can control the movement and clicks of your computer mouse in order to *help* one play shooter based video games by assisting aim.
 
 ## _Image Gallery_
+<img width="1119" height="665" alt="mm6 image 1" src="https://github.com/user-attachments/assets/918a0417-caf0-4016-a666-a7f2a608fe40" />
+<img width="879" height="355" alt="mm6 image 2" src="https://github.com/user-attachments/assets/968aeb85-c7f1-4e76-987c-5b29a6f8b62d" />
+<img width="946" height="388" alt="mm6 image 3" src="https://github.com/user-attachments/assets/b5b2995f-b22c-4685-99d8-a65c99ffaaf2" />
+<img width="875" height="770" alt="mm6 image 4" src="https://github.com/user-attachments/assets/f58645ee-d676-4509-a19c-8337f3116ffb" />
+<img width="875" height="770" alt="mm6 image 4" src="https://github.com/user-attachments/assets/3c49b6f9-93ed-43ec-ab85-87196cc17160" />
+<img width="1920" height="1079" alt="mm6 detection code" src="https://github.com/user-attachments/assets/5fe688be-93d7-4a38-ae77-853f87bf1b5f" />
 
 
 ## _How it Works_
