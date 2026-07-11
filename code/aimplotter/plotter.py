@@ -1,15 +1,21 @@
 import time
 
 
-class GRBLPlotter:
+class StepperPlotter:
+    """Drives the custom Arduino firmware over serial.
+
+    Protocol: 'J <dx> <dy> <feed>\\n' relative move, 'S <angle>\\n' servo,
+    '!' realtime abort. Every non-'!' command is acked 'ok'.
+    """
+
     def __init__(self, serial_obj, soft_limit_mm, bed_center_mm,
-                 press_cmd, release_cmd, click_dwell_s,
+                 press_angle, release_angle, click_dwell_s,
                  feed_mm_min=3000, sleep_fn=time.sleep):
         self.serial = serial_obj
         self.soft_limit_mm = soft_limit_mm
         self.center = bed_center_mm
-        self.press_cmd = press_cmd
-        self.release_cmd = release_cmd
+        self.press_angle = press_angle
+        self.release_angle = release_angle
         self.click_dwell_s = click_dwell_s
         self.feed_mm_min = feed_mm_min
         self._sleep = sleep_fn
@@ -20,7 +26,7 @@ class GRBLPlotter:
         return (self._x, self._y)
 
     def _send(self, line: str) -> None:
-        """Send command, wait for ok."""
+        """Send a command, wait for 'ok'."""
         self.serial.write(line.encode())
         for _ in range(100):
             resp = self.serial.readline()
@@ -29,8 +35,8 @@ class GRBLPlotter:
             text = resp.decode(errors="replace").strip().lower()
             if text.startswith("ok"):
                 break
-            if text.startswith("error"):
-                raise RuntimeError(resp.decode(errors="replace").strip())
+            if text.startswith("err"):
+                raise RuntimeError("firmware rejected: " + line.strip())
 
     def _clamp(self, target, axis_center):
         lo = axis_center - self.soft_limit_mm
@@ -46,21 +52,20 @@ class GRBLPlotter:
         ny, cy_clamped = self._clamp(self._y + dy_mm, self.center[1])
         real_dx = nx - self._x
         real_dy = ny - self._y
-        line = (f"$J=G91 G21 X{real_dx:.3f} Y{real_dy:.3f} "
-                f"F{self.feed_mm_min}\n")
+        line = f"J {real_dx:.3f} {real_dy:.3f} {self.feed_mm_min}\n"
         self._send(line)
         self._x, self._y = nx, ny
         return not (cx_clamped or cy_clamped)
 
     def click(self) -> None:
-        self._send(self.press_cmd + "\n")
+        self._send(f"S {self.press_angle}\n")
         self._sleep(self.click_dwell_s)
-        self._send(self.release_cmd + "\n")
+        self._send(f"S {self.release_angle}\n")
 
     def safe_stop(self) -> None:
-        """Release servo then halt."""
-        self._send(self.release_cmd + "\n")
+        """Release servo then abort motion."""
+        self._send(f"S {self.release_angle}\n")
         self.serial.write(b"!")
 
     def feed_hold(self) -> None:
-        self.serial.write(b"!")  # realtime, no response
+        self.serial.write(b"!")  # realtime, no ack
