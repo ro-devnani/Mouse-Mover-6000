@@ -26,8 +26,8 @@ class Config:
     # --- plotter / serial ---
     port: str = "COM3"
     baud: int = 115200
-    press_cmd: str = "M3 S1000"
-    release_cmd: str = "M5"
+    press_angle: int = 60         # servo degrees when clicking
+    release_angle: int = 90       # servo degrees at rest
     click_dwell_s: float = 0.04
 
     # --- soft limits (mm), bed center is origin reference ---
