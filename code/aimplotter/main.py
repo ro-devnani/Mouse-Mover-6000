@@ -112,13 +112,13 @@ def main(argv=None) -> None:
         plotter = _PrintPlotter()
     else:
         import serial
-        from aimplotter.plotter import GRBLPlotter
+        from aimplotter.plotter import StepperPlotter
         ser = serial.Serial(config.port, config.baud, timeout=2)
-        time.sleep(2)
+        time.sleep(2)          # let the Uno finish resetting
         ser.reset_input_buffer()
-        plotter = GRBLPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
-                             config.press_cmd, config.release_cmd,
-                             config.click_dwell_s)
+        plotter = StepperPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
+                                config.press_angle, config.release_angle,
+                                config.click_dwell_s)
 
     try:
         run_loop(cap.grab, plotter, controller, drift, config,
