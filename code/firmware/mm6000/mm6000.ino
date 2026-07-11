@@ -1,5 +1,6 @@
 #include <AccelStepper.h>
 #include <Servo.h>
+#include <stdlib.h>   // strtod, atoi (avr-libc float sscanf is unsupported)
 
 // --- CNC Shield V3 pin map (A4988 drivers) ---
 #define X_STEP 2
@@ -54,7 +55,10 @@ void runMove() {
 void handleJog(char *args) {
   float dx = 0, dy = 0, feed = 0;
   // args: "<dx_mm> <dy_mm> <feed_mm_min>"
-  sscanf(args, "%f %f %f", &dx, &dy, &feed);
+  char *p = args;
+  dx = strtod(p, &p);
+  dy = strtod(p, &p);
+  feed = strtod(p, &p);
   float sx = feed > 0 ? (feed / 60.0) * STEPS_PER_MM_X : DEFAULT_SPEED;
   float sy = feed > 0 ? (feed / 60.0) * STEPS_PER_MM_Y : DEFAULT_SPEED;
   xAxis.setMaxSpeed(sx);
@@ -66,8 +70,7 @@ void handleJog(char *args) {
 }
 
 void handleServo(char *args) {
-  int angle = 90;
-  sscanf(args, "%d", &angle);
+  int angle = atoi(args);
   if (angle < 0) angle = 0;
   if (angle > 180) angle = 180;
   clickServo.write(angle);
