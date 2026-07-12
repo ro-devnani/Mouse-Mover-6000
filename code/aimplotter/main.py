@@ -52,7 +52,7 @@ def run_loop(frame_source, plotter, controller, drift, config,
 
 
 class _PrintPlotter:
-    """Dry-run plotter: prints G-code instead of sending serial."""
+    """Dry-run plotter: prints the firmware command instead of sending serial."""
     def __init__(self):
         self._pos = (0.0, 0.0)
 
@@ -62,7 +62,7 @@ class _PrintPlotter:
 
     def jog(self, dx, dy):
         self._pos = (self._pos[0] + dx, self._pos[1] + dy)
-        print(f"[dry-run] $J=G91 X{dx:.3f} Y{dy:.3f}")
+        print(f"[dry-run] J {dx:.3f} {dy:.3f}")
         return True
 
     def click(self):
