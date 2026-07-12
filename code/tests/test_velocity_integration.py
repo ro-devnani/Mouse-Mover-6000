@@ -3,6 +3,8 @@ import cv2
 from aimplotter.velocity_main import run_velocity_loop
 from aimplotter.velocity_controller import VelocityController
 from aimplotter.config import Config
+from aimplotter.tracker import Track
+from aimplotter.models import Ball
 
 
 class FakeVP:
@@ -74,3 +76,66 @@ def test_offcenter_frame_commands_nonzero_velocity():
                       clock=_clock_from([0.0, 0.03, 0.06]))
     vx, vy = p.velocities[0]
     assert vx != 0.0     # ball right of center -> nonzero x velocity
+
+
+class FakeTracker:
+    """Replays a preset sequence of track lists, ignoring detected balls."""
+    def __init__(self, track_seq):
+        self._it = iter(track_seq)
+
+    def update(self, balls):
+        return next(self._it)
+
+
+class RecordingController(VelocityController):
+    """Records reset()/step() calls in order so we can inspect interleaving."""
+    def __init__(self, *args, **kwargs):
+        self.calls = []
+        super().__init__(*args, **kwargs)
+
+    def reset(self):
+        self.calls.append("reset")
+        super().reset()
+
+    def step(self, target_px, center, dt):
+        self.calls.append(("step", target_px))
+        return super().step(target_px, center, dt)
+
+
+def test_lock_switch_resets_controller_feedforward():
+    # Two different balls, both off-center so both frames take the "vel"
+    # branch (never on-target, never idle). The fake tracker hands back a
+    # different locked track id on frame 2, simulating the tracker's lock
+    # jumping from ball A to ball B (e.g. A left frame, B is now nearest).
+    C = Config()
+    track_seq = [
+        [Track(id=1, ball=Ball(cx=1400, cy=540, r=25), misses=0)],
+        [Track(id=2, ball=Ball(cx=600, cy=540, r=25), misses=0)],
+    ]
+    tracker = FakeTracker(track_seq)
+
+    p = FakeVP()
+    ctrl = RecordingController(C.kp_v, C.kff, C.gain, C.max_speed_mm_s)
+
+    # Only 2 frames: once the iterator is exhausted, next(it, None) yields
+    # None and the loop stops -- matching track_seq's length exactly.
+    frames = [_frame(1400, 540), _frame(600, 540)]
+    it = iter(frames)
+
+    run_velocity_loop(lambda: next(it, None), p, ctrl, C,
+                      should_stop=lambda: False,
+                      clock=_clock_from([0.0, 0.03, 0.06]),
+                      tracker=tracker)
+
+    step_indices = [i for i, c in enumerate(ctrl.calls)
+                    if isinstance(c, tuple) and c[0] == "step"]
+    assert len(step_indices) == 2, f"expected 2 step() calls, got {ctrl.calls}"
+    first_step_i, second_step_i = step_indices
+
+    # A reset() must land strictly between the two step() calls: that's the
+    # controller dropping ball A's stale feedforward before it ever sees
+    # ball B's target position.
+    between = ctrl.calls[first_step_i + 1:second_step_i]
+    assert "reset" in between, (
+        f"controller.reset() was not called on lock switch; calls={ctrl.calls}"
+    )

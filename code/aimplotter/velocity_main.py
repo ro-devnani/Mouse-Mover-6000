@@ -34,8 +34,11 @@ def run_velocity_loop(frame_source, plotter, controller, config,
         if tracker is not None:
             tracks = tracker.update(balls)
             sel = select_locked(tracks, config.screen_center, locked_id)
+            new_id = sel.id if sel else None
+            if sel is not None and new_id != locked_id:
+                controller.reset()   # new target -> drop stale feedforward
             target = sel.ball if sel else None
-            locked_id = sel.id if sel else None
+            locked_id = new_id
         else:
             target = nearest_to_center(balls, config.screen_center)
 
