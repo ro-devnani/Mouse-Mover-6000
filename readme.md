@@ -8,6 +8,11 @@ An XY plotter based system that can control the movement and clicks of your comp
 <img width="946" height="388" alt="mm6 image 3" src="https://github.com/user-attachments/assets/b5b2995f-b22c-4685-99d8-a65c99ffaaf2" />
 <img width="875" height="770" alt="mm6 image 4" src="https://github.com/user-attachments/assets/f58645ee-d676-4509-a19c-8337f3116ffb" />
 <img width="1920" height="1079" alt="mm6 detection code" src="https://github.com/user-attachments/assets/5fe688be-93d7-4a38-ae77-853f87bf1b5f" />
+<img width="4032" height="3024" alt="IMG_5696" src="https://github.com/user-attachments/assets/7d795dc6-7cbf-4cd5-9246-c2091f83d33a" />
+<img width="4032" height="3024" alt="IMG_5695" src="https://github.com/user-attachments/assets/8013aecb-5231-4ef4-85ad-8c61b2be667f" />
+<img width="4032" height="3024" alt="IMG_5694" src="https://github.com/user-attachments/assets/e3af6ea3-4113-4ed5-ad75-7cb3672e4039" />
+<img width="4032" height="3024" alt="IMG_5693" src="https://github.com/user-attachments/assets/7bed4775-5df2-4fd8-b679-bb4a6435c3c6" />
+
 
 
 ## _How it Works_
@@ -21,6 +26,9 @@ The firmware runs the two NEMA 17 steppers at that commanded speed, ramping smoo
 Steps to run on a fresh machine.
 
 **1. Firmware** — open `code/firmware/mm6000_velocity/mm6000_velocity.ino` in the Arduino IDE, install the **AccelStepper** and **Servo** libraries, select the Uno + its port, and Upload. The Serial Monitor (115200 baud) should print `mm6000v ready`. Center the carriage before powering — power-on position is the origin.
+
+
+
 
 Machine constants to check in the sketch before flashing:
 ```
