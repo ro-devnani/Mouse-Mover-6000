@@ -78,7 +78,7 @@ class _PrintPlotter:
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description="Optical aim plotter")
     parser.add_argument("--no-serial", action="store_true",
-                        help="dry-run: print G-code instead of sending")
+                        help="dry-run: print firmware commands instead of sending")
     args = parser.parse_args(argv)
 
     config = Config()

@@ -46,7 +46,8 @@ def main() -> None:
     config = Config()
     cap = ScreenCapture(config.screen_region)
     ser = serial.Serial(config.port, config.baud, timeout=2)
-    _t.sleep(2)
+    _t.sleep(2)                # let the Uno finish resetting
+    ser.reset_input_buffer()   # discard the boot banner
     plotter = StepperPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
                             config.press_angle, config.release_angle,
                             config.click_dwell_s)
