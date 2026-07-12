@@ -41,15 +41,15 @@ def main() -> None:
     import serial
     from aimplotter.config import Config
     from aimplotter.capture import ScreenCapture
-    from aimplotter.plotter import GRBLPlotter
+    from aimplotter.plotter import StepperPlotter
 
     config = Config()
     cap = ScreenCapture(config.screen_region)
     ser = serial.Serial(config.port, config.baud, timeout=2)
     _t.sleep(2)
-    plotter = GRBLPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
-                         config.press_cmd, config.release_cmd,
-                         config.click_dwell_s)
+    plotter = StepperPlotter(ser, config.soft_limit_mm, config.bed_center_mm,
+                            config.press_angle, config.release_angle,
+                            config.click_dwell_s)
     try:
         measure_gain(cap, plotter, config)
     finally:
