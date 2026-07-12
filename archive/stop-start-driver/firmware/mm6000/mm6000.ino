@@ -11,8 +11,8 @@
 #define SERVO_PIN 11
 
 // --- machine constants (measure steps/mm on the built rig, then set) ---
-#define STEPS_PER_MM_X 80.0
-#define STEPS_PER_MM_Y 80.0
+#define STEPS_PER_MM_X 5.0    // full-step: 200 steps/rev / 40mm GT2-20T rev
+#define STEPS_PER_MM_Y 5.0    // no microstep jumpers; coarse 0.2mm/step
 #define ACCEL 2000.0            // steps/s^2
 #define DEFAULT_SPEED 1000.0    // steps/s fallback if feed missing/zero
 

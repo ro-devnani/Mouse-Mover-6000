@@ -1,30 +1,61 @@
 import math
+import threading
 import time
 
 from aimplotter.detector import detect_blue
 from aimplotter.targeting import nearest_to_center
 
 
-def measure_gain(capture, plotter, config, move_mm=5.0) -> float:
-    """Jog known distance, measure pixel shift."""
+def wait_for_enter(message: str) -> None:
+    """Block until ENTER is pressed anywhere (global hook, no terminal focus).
+
+    Uses pynput so the key registers even while a fullscreen game is focused.
+    """
+    from pynput import keyboard
+    print(message, flush=True)
+    done = threading.Event()
+
+    def on_press(key):
+        if key == keyboard.Key.enter:
+            done.set()
+            return False  # stop the listener
+
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+    done.wait()
+    listener.join()
+
+
+def measure_gain(capture, plotter, config, move_mm=15.0,
+                 prompt_fn=wait_for_enter) -> float:
+    """Jog known distance, measure pixel shift.
+
+    ENTER-bracketed: press ENTER to capture the target before the jog, the
+    plotter jogs a known distance, press ENTER again to capture it after.
+    """
+    prompt_fn("Aim at a target, then press ENTER to capture START...")
     f0 = capture.grab()
     b0 = nearest_to_center(
         detect_blue(f0, config.hsv_lower, config.hsv_upper, config.min_area_px),
         config.screen_center,
     )
     if b0 is None:
-        raise RuntimeError("No ball visible. Point at target before calibrating.")
+        raise RuntimeError("No ball visible at START. Aim at a target and retry.")
 
     plotter.jog(move_mm, 0.0)
     time.sleep(0.3)
 
+    prompt_fn("Jogged. When the target is visible again, press ENTER to capture END...")
     f1 = capture.grab()
+    # Match the SAME target: after a small jog it barely moved, so the ball
+    # nearest b0's old position is the same one. (nearest-to-center would grab
+    # whichever target is now closest to center -- often a different ball.)
     b1 = nearest_to_center(
         detect_blue(f1, config.hsv_lower, config.hsv_upper, config.min_area_px),
-        config.screen_center,
+        (b0.cx, b0.cy),
     )
     if b1 is None:
-        raise RuntimeError("Lost the ball after move. Reduce move_mm.")
+        raise RuntimeError("No ball visible at END. Retry.")
 
     px = math.hypot(b1.cx - b0.cx, b1.cy - b0.cy)
     if px < 1:

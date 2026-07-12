@@ -14,6 +14,7 @@ def run_loop(frame_source, plotter, controller, drift, config,
     """Drive one detect->aim->click loop. Returns action log for testing."""
     actions: list[str] = []
     locked_id = None
+    armed = True  # may we click? False = already hit, hold still
     while not should_stop():
         frame = frame_source()
         if frame is None:
@@ -38,15 +39,28 @@ def run_loop(frame_source, plotter, controller, drift, config,
         drift.on_target_frame()
         err = error_vector(target, config.screen_center)
         if on_target(err, target.r, config.hitbox_tol_px):
-            plotter.click()
-            controller.reset()
-            locked_id = None  # release after hit
-            actions.append("click")
+            if armed:
+                plotter.click()
+                controller.reset()
+                armed = False  # click once, then hold
+                actions.append("click")
+            else:
+                actions.append("hold")  # already hit; sit still, no jog
         else:
+            armed = True  # crosshair left the target -> re-arm
             dx, dy = controller.step(err)
+            if config.invert_x:
+                dx = -dx
+            if config.invert_y:
+                dy = -dy
+            if config.debug:
+                print(f"err=({err[0]:+.0f},{err[1]:+.0f}) "
+                      f"move=({dx:+.2f},{dy:+.2f}) r={target.r:.0f}")
             ok = plotter.jog(dx, dy)
             if not ok:
                 print("WARNING: soft limit reached")
+            if config.move_settle_s:
+                time.sleep(config.move_settle_s)  # let the view render before next grab
             actions.append("jog")
     return actions
 
