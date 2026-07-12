@@ -23,6 +23,13 @@ class Config:
     max_move_mm: float = 5.0      # clamp per frame -> "glide"
     hitbox_tol_px: float = 6.0    # extra slack added to ball radius
 
+    # --- velocity control (smooth streaming system) ---
+    kp_v: float = 0.05            # mm/s commanded speed per px of error
+    kff: float = 0.5             # feedforward scale on target pixel motion
+    max_speed_mm_s: float = 40.0  # velocity magnitude clamp
+    vel_watchdog_ms: int = 200    # firmware halts if no V within this window
+    vel_deadzone_tol_px: float = 6.0  # hold zone = ball radius + this
+
     # --- plotter / serial ---
     port: str = "COM3"
     baud: int = 115200
