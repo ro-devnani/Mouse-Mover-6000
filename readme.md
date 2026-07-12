@@ -11,9 +11,47 @@ An XY plotter based system that can control the movement and clicks of your comp
 
 
 ## _How it Works_
-By using a color detection model that takes screenshots of the users page, the algorithm can successfully find the targets that will be need to shot at and find the closest one. Then, the location is compared to the current mouse position and the distance/path to the next target is determined. That is then converted into gcode which is sent through USB to the Arduino Uno with a CNC Shield V3 running GRBL.
+A color-detection pipeline screenshots the display, finds the on-screen targets, and picks the one nearest the crosshair. The target's pixel offset from screen center is turned into a **velocity command** and streamed continuously over USB to an Arduino Uno + CNC Shield V3 running custom firmware (`code/firmware/mm6000_velocity/`).
 
-This then controls the two Nema17 stepper motors to move in order to turn the belts a certain distance and with it move the mouse to the correct location. Once on the target, the SG90 servo rotates in order to click the mouse button, after which the process repeats again for the next closest target.
+The firmware runs the two NEMA 17 steppers at that commanded speed, ramping smoothly between updates instead of stopping every frame — so the mouse glides toward the target rather than moving in choppy hops. Once the crosshair is on the target, the SG90 servo clicks. Then it repeats for the next-nearest target.
+
+> **Note:** the rig originally ran GRBL/G-code; that path was replaced by the custom velocity firmware. The old position-based (move-and-settle) driver is kept for reference in [`archive/stop-start-driver/`](archive/stop-start-driver/).
+
+## _Setup & Run_
+Steps to run on a fresh machine.
+
+**1. Firmware** — open `code/firmware/mm6000_velocity/mm6000_velocity.ino` in the Arduino IDE, install the **AccelStepper** and **Servo** libraries, select the Uno + its port, and Upload. The Serial Monitor (115200 baud) should print `mm6000v ready`. Center the carriage before powering — power-on position is the origin.
+
+Machine constants to check in the sketch before flashing:
+```
+STEPS_PER_MM_X/Y  5.0     // steps per mm — measure on your rig
+SOFT_LIMIT_MM     90.0    // ± travel from the power-on origin
+ACCEL             4000.0  // slew rate (higher = snappier, too high = jerky)
+WATCHDOG_MS       600     // firmware ramps to 0 if the host goes quiet
+```
+
+**2. Python** —
+```
+cd code
+pip install -r requirements.txt        # optional: pip install dxcam (faster capture)
+```
+
+**3. Configure** `code/aimplotter/config.py` — set `port` (your Arduino COM port), `screen_region`/`screen_center` for your display, and `hsv_lower`/`hsv_upper` for the target color.
+
+**4. Calibrate `gain`** (mm of travel per pixel of view shift) — aim at a target and run:
+```
+python -m aimplotter.velocity_calibrate
+```
+Press ENTER; the carriage drives a known velocity for a known time, measures the pixel shift, and prints a suggested `config.gain`. Put that value in `config.py`.
+
+**5. Dry-run** (no hardware, prints commands) then the real run:
+```
+python -m aimplotter.velocity_main --no-serial
+python -m aimplotter.velocity_main
+```
+Kill switch: **`q`** (global). Teardown zeroes velocity and releases the servo.
+
+**Tuning** (all in `config.py`, no reflash): `kp_v` = chase strength (raise for faster, lower if it overshoots), `max_speed_mm_s` = speed cap, `vel_deadzone_tol_px` = how tightly it centers before clicking. `kff` (feedforward) is off by default — at high frame rates it amplifies detection noise.
 
 ## _Bill of Materials_
 I will be buying the few materials I need out of pocket, however these are the required components to reproduce.
