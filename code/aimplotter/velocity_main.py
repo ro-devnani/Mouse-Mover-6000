@@ -66,7 +66,7 @@ def run_velocity_loop(frame_source, plotter, controller, config,
             if config.invert_y:
                 vy = -vy
             if config.debug:
-                print(f"err=({err[0]:+.0f},{err[1]:+.0f}) "
+                print(f"dt={dt*1000:4.0f}ms err=({err[0]:+.0f},{err[1]:+.0f}) "
                       f"vel=({vx:+.2f},{vy:+.2f}) r={target.r:.0f}")
             plotter.set_velocity(vx, vy)
             actions.append("vel")

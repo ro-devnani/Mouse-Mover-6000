@@ -16,29 +16,33 @@ class Config:
     min_area_px: float = 80.0
 
     # --- control ---
-    gain: float = 0.03            # mm of plotter travel per px of error
+    gain: float = 0.24            # mm of plotter travel per px of error (calibrated, same-target)
     kp: float = 1.0               # multiplies gain
     ki: float = 0.0               # 0 = pure PD
-    kd: float = 0.2
-    max_move_mm: float = 5.0      # clamp per frame -> "glide"
-    hitbox_tol_px: float = 6.0    # extra slack added to ball radius
+    kd: float = 0.5
+    max_move_mm: float = 6.0      # clamp per frame -> "glide"
+    move_settle_s: float = 0.04   # wait after a jog for the view to render before re-capture
+    debug: bool = True           # print per-frame error + move
+    hitbox_tol_px: float = 6.0    # hold zone = ball radius + this; smaller = centers tighter
+    invert_x: bool = False        # flip if +X move turns view the wrong way
+    invert_y: bool = True         # +Y=mouse up=look up=targets slide down (inverted)
 
     # --- velocity control (smooth streaming system) ---
-    kp_v: float = 0.05            # mm/s commanded speed per px of error
-    kff: float = 0.5             # feedforward scale on target pixel motion
-    max_speed_mm_s: float = 40.0  # velocity magnitude clamp
-    vel_watchdog_ms: int = 200    # firmware halts if no V within this window
+    kp_v: float = 0.8             # mm/s commanded speed per px of error
+    kff: float = 0.0              # feedforward scale on target pixel motion (0 = off; noise amp at high fps)
+    max_speed_mm_s: float = 120.0  # velocity magnitude clamp
+    vel_watchdog_ms: int = 600    # firmware halts if no V within this window
     vel_deadzone_tol_px: float = 6.0  # hold zone = ball radius + this
 
     # --- plotter / serial ---
-    port: str = "COM3"
+    port: str = "COM6"
     baud: int = 115200
     press_angle: int = 60         # servo degrees when clicking
     release_angle: int = 90       # servo degrees at rest
     click_dwell_s: float = 0.04
 
     # --- soft limits (mm), bed center is origin reference ---
-    soft_limit_mm: float = 100.0  # +/- travel from start in X and Y
+    soft_limit_mm: float = 90.0   # +/- travel from center (200mm range, 10mm margin)
     bed_center_mm: tuple[float, float] = (0.0, 0.0)
 
     # --- drift corrector ---

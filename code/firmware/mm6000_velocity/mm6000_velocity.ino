@@ -13,11 +13,11 @@
 // --- machine constants (match mm6000.ino) ---
 #define STEPS_PER_MM_X 5.0
 #define STEPS_PER_MM_Y 5.0
-#define ACCEL 2000.0            // steps/s^2: bounds how fast commanded speed slews
+#define ACCEL 4000.0            // steps/s^2: bounds how fast commanded speed slews
 #define MAX_STEP_SPEED 4000.0   // steps/s hard cap per axis
 
 // --- safety ---
-#define WATCHDOG_MS 200         // no V within this -> ramp to zero
+#define WATCHDOG_MS 600         // no V within this -> ramp to zero
 #define SOFT_LIMIT_MM 90.0      // +/- travel from startup origin
 const long LIMIT_STEPS_X = (long)(SOFT_LIMIT_MM * STEPS_PER_MM_X);
 const long LIMIT_STEPS_Y = (long)(SOFT_LIMIT_MM * STEPS_PER_MM_Y);

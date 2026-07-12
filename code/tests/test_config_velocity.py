@@ -6,7 +6,7 @@ def test_velocity_defaults_present():
     assert c.kp_v > 0
     assert c.kff >= 0
     assert c.max_speed_mm_s > 0
-    assert c.vel_watchdog_ms == 200
+    assert c.vel_watchdog_ms == 600
     assert c.vel_deadzone_tol_px > 0
 
 
